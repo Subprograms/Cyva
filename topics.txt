@@ -1,0 +1,25 @@
+0|Threat|An action or mechanism that can be used for exploitation.|Fundamentals|3|risk,attack,danger|0||3|1,4,5
+1|Vulnerability|A flaw or weakness that can be exploited.|Fundamentals|3|risk,weakness,exposure|0||2|0,4
+2|Threat Actor|The entity tied to a threat; may be intentional or unintentional, internal or external.|Fundamentals|3|attacker,insider,external|5|6,7,8,9,10|1|0
+3|Attack Surface|Points where vulnerabilities may be discovered: ports, software, users, devices.|Fundamentals|3|surface,exposure,entrypoints|0||2|1,4
+4|Threat Vector|Path or mechanism to exploit vulnerabilities in an attack surface.|Fundamentals|3|vector,pathway,exploit|0||5|0,1,3,14,15
+5|Risk|Risk = Impact × Likelihood. Measures chance and damage of exploitation.|Fundamentals|3|metric,risk,likelihood|0||2|0,1
+6|Black Hat Hacker|Performs unauthorized exploitation and breaks security policies.|Attackers|3|unauthorized,malicious,blackhat|0||1|2
+7|White Hat Hacker|Performs authorized ethical exploitation for remediation or testing.|Attackers|3|ethical,whitehat,testing|0||1|1
+8|Advanced Persistent Threat (APT)|Prolonged and targeted attack maintaining unauthorized access over time.|Attackers|3|apt,targeted,persistent|0||3|6,9,10
+9|External Threat Actor|Attacker with no initial access, requires recon and infiltration.|Attackers|3|external,reconnaissance,unauthorized|0||1|8
+10|Internal Threat Actor|Attacker with initial access, e.g. employees, contractors.|Attackers|3|insider,internal,authorized|0||1|8
+11|Chaotic Motivation|Motivated by disruption or vandalism without specific goal.|Nature of Attacks|3|chaotic,disruption,vandalism|0||2|14,15
+12|Financial Motivation|Driven by extortion, fraud, or blackmail for monetary gain.|Nature of Attacks|3|extortion,fraud,blackmail|0||1|4
+13|Political Motivation|Aims to cause political change or exfiltrate classified info.|Nature of Attacks|3|espionage,politics,nation-state|0||1|8
+14|Brute Force|Trial-and-error password guessing, sometimes automated.|Nature of Attacks|3|password,guessing,bruteforce|0||1|4
+15|Social Engineering|Exploiting human trust via trickery, impersonation, or coercion.|Nature of Attacks|3|trickery,impersonation,coercion|0||1|4
+16|MAC Filtering|Limits network access to allowed MAC addresses on switch ports.|Port Security|3|mac,filtering,access control|0||1|17
+17|Port-Based Network Access Control (PNAC)|IEEE 802.1X-based framework for authentication via RADIUS.|Port Security|3|802.1X,pnac,radius|0||1|16
+18|Air Gap|Full physical isolation from all networks, used for legacy/high-risk hosts.|Port Security|3|isolation,airgap,offline|0||0|
+19|Firewall|Security control for filtering traffic using stateless/stateful inspection.|Network Security|3|firewall,inspection,filtering|0||3|20,21,23
+20|Proxy Server|Intermediary for enforcing traffic policies and obfuscating endpoints.|Network Security|3|proxy,forward,reverse|0||1|19
+21|IDS / IPS|Detects or actively prevents attacks using signatures or heuristics.|Network Security|3|ids,ips,detection|0||1|19
+22|Web Application Firewall (WAF)|Protects HTTP apps from injection, DoS, and other threats.|Internetwork Security|3|waf,http,web apps|0||2|19,20
+23|VPN|Creates an encrypted tunnel for secure remote access to private resources.|Internetwork Security|3|vpn,tunnel,remote|1|24|1|19
+24|IPSec|Secures transmission paths at the network layer.|Internetwork Security|3|ipsec,network layer,secure path|0||1|23
