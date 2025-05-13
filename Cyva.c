@@ -10,7 +10,7 @@
 #define cMaxTags       5
 #define cMaxDomains    50
 #define cStrLen        256
-#define cFileName      "C:\\Users\\Gabe\\source\\repos\\Cyva\\Cyva\\topics.txt"
+#define cFileName      "topics.txt"
 
 /* -------- data structures -------- */
 typedef struct {
