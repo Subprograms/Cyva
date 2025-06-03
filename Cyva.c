@@ -1,16 +1,16 @@
-﻿#include <stdio.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 
 /* -------- tunables -------- */
-#define cMaxTopics     100
+#define cMaxTopics     300
 #define cMaxSubtopics  10
 #define cMaxRelations  10
 #define cMaxTags       5
 #define cMaxDomains    50
 #define cStrLen        256
-#define cFileName      "topics.txt"
+#define cFileName      "C:\\Users\\Gabe\\source\\repos\\Cyva\\Cyva\\topics.txt"
 
 /* -------- data structures -------- */
 typedef struct {
@@ -36,8 +36,7 @@ int   nDomainCount = 0;
    Safe integer input: fgets + strtol; re-prompts on bad entry.
    Returns 1 on success, 0 on EOF.
    ========================================================================= */
-int promptInt(const char* msg, int* out)
-{
+int promptInt(const char* msg, int* out) {
     char buf[32], * end;
     while (1) {
         printf("%s", msg);
@@ -49,155 +48,304 @@ int promptInt(const char* msg, int* out)
     }
 }
 
-/* ---------------------------------------------------------------------------
-   loadTopicsFromFile()
-   Reads exactly 10 pipe-separated fields per line (preserving empties)
-   and parses them into your Topic struct.
-   ------------------------------------------------------------------------- */
-void loadTopicsFromFile(void) {
+/*=================================================================
+  printDesc
+  ---------
+  Prints sz, but converts every back-tick (`) to a newline.
+==================================================================*/
+static void printDesc(const char* sz)
+{
+    const char* p;
+    for (p = sz; *p != '\0'; ++p) {
+        if (*p == '`')
+            putchar('\n');
+        else
+            putchar(*p);
+    }
+}
+
+/*=================================================================
+  readFullLine
+  ------------
+  Reads an entire line from fp, regardless of length.  A trailing
+  '\n' (if any) is stripped.  On success:
+      returns 1   and  *outLine points to heap memory
+  On EOF or error:
+      returns 0   and  *outLine is unchanged.
+  Caller *must* free(*outLine) after use.
+==================================================================*/
+static int readFullLine(FILE* fp, char** outLine)
+{
+    /* caller supplies pointer which we only set on success */
+    const size_t kChunk = 1024U;
+    size_t       cap = kChunk;
+    size_t       len = 0U;
+    char* buf = (char*)malloc(cap);
+
+    if (buf == NULL)
+        return 0;                       /* malloc failed */
+
+    while (1) {
+        /* make sure there is always at least one byte left for '\0' */
+        if (cap - len < kChunk / 4U) {
+            size_t newCap = cap + kChunk;
+            char* tmp = (char*)realloc(buf, newCap);
+            if (tmp == NULL) {          /* realloc failed */
+                free(buf);
+                return 0;
+            }
+            buf = tmp;
+            cap = newCap;
+        }
+
+        if (fgets(buf + len, (int)(cap - len), fp) == NULL) {
+            /* EOF before any char read? -> fail */
+            if (len == 0U) {
+                free(buf);
+                return 0;
+            }
+            /* else treat last partial line as valid */
+            break;
+        }
+
+        len += strlen(buf + len);
+
+        /* If we ended with '\n', we have the full line */
+        if (len > 0U && buf[len - 1U] == '\n') {
+            buf[len - 1U] = '\0';       /* strip newline */
+            break;
+        }
+    }
+
+    *outLine = buf;
+    return 1;
+}
+
+/*=================================================================
+  loadTopicsFromFile  –  NEW VERSION
+==================================================================*/
+void loadTopicsFromFile(void)
+{
     FILE* fp = fopen(cFileName, "r");
-    if (!fp) {
+    if (fp == NULL) {
         perror("Failed to open topics.txt");
         return;
     }
 
-    char line[1024];
-    while (fgets(line, sizeof(line), fp)) {
-        // trim newline
-        line[strcspn(line, "\r\n")] = '\0';
+    char* dynLine = NULL;
 
-        // split into exactly 10 fields, preserving empty ones
+    while (readFullLine(fp, &dynLine)) {
+
+        /*---------------------------------------------------------
+          1.  Split into exactly 10 pipe-separated fields
+        ----------------------------------------------------------*/
         char* fields[10];
-        char* p = line;
-        for (int i = 0; i < 9; i++) {
-            fields[i] = p;
-            char* sep = strchr(p, '|');
-            if (sep) {
-                *sep = '\0';
-                p = sep + 1;
+        char* cursor = dynLine;
+        int   i;
+
+        for (i = 0; i < 9; ++i) {
+            fields[i] = cursor;
+
+            /* find next pipe */
+            char* pipePos = strchr(cursor, '|');
+
+            if (pipePos != NULL) {
+                *pipePos = '\0';         /* terminate this field   */
+                cursor = pipePos + 1;  /* advance to next field  */
             }
             else {
-                // missing fields: set rest to empty
-                for (int j = i + 1; j < 10; j++)
-                    fields[j] = "";
-                p = NULL;
+                /* fewer than 10 pipes – pad remaining */
+                int j;
+                for (j = i + 1; j < 10; ++j)
+                    fields[j] = (char*)"";
                 break;
             }
         }
-        fields[9] = p ? p : "";
 
-        // now we have fields[0]..fields[9]
+        if (i == 9)
+            fields[9] = cursor;          /* last field */
+        else
+            fields[9] = (char*)"";
+
+        /*---------------------------------------------------------
+          2.  Populate Topic struct
+        ----------------------------------------------------------*/
+        if (nTopicCount >= cMaxTopics) {
+            fprintf(stderr, "Topic array full; skipping remaining lines\n");
+            free(dynLine);
+            break;
+        }
+
         Topic* T = &aTopics[nTopicCount];
 
-        // ID, name, description, domain
         T->nId = atoi(fields[0]);
-        strncpy(T->szName, fields[1], cStrLen);  T->szName[cStrLen - 1] = '\0';
-        strncpy(T->szDesc, fields[2], cStrLen);  T->szDesc[cStrLen - 1] = '\0';
-        strncpy(T->szDomain, fields[3], cStrLen);  T->szDomain[cStrLen - 1] = '\0';
 
-        // tags
+        strncpy(T->szName, fields[1], cStrLen); T->szName[cStrLen - 1] = '\0';
+        strncpy(T->szDesc, fields[2], cStrLen); T->szDesc[cStrLen - 1] = '\0';
+        strncpy(T->szDomain, fields[3], cStrLen); T->szDomain[cStrLen - 1] = '\0';
+
+        /* ---------- tags ---------- */
         T->nTagCount = atoi(fields[4]);
-        if (T->nTagCount > cMaxTags) T->nTagCount = cMaxTags;
-        int t = 0;
-        char* tk = fields[5];
-        while (tk && *tk && t < T->nTagCount) {
-            char* comma = strchr(tk, ',');
-            if (comma) *comma = '\0';
-            strncpy(T->aszTags[t], tk, cStrLen);
-            T->aszTags[t][cStrLen - 1] = '\0';
-            t++;
-            if (!comma) break;
-            tk = comma + 1;
-        }
+        if (T->nTagCount > cMaxTags)
+            T->nTagCount = cMaxTags;
 
-        // subtopics
-        T->nSubCount = atoi(fields[6]);
-        if (T->nSubCount > cMaxSubtopics) T->nSubCount = cMaxSubtopics;
-        int s = 0;
-        char* sub = fields[7];
-        while (sub && *sub && s < T->nSubCount) {
-            char* comma = strchr(sub, ',');
-            if (comma) *comma = '\0';
-            T->anSubIds[s++] = atoi(sub);
-            if (!comma) break;
-            sub = comma + 1;
-        }
+        int tagIdx = 0;
+        char* tagCur = fields[5];
 
-        // related
-        T->nRelCount = atoi(fields[8]);
-        if (T->nRelCount > cMaxRelations) T->nRelCount = cMaxRelations;
-        int r = 0;
-        char* rel = fields[9];
-        while (rel && *rel && r < T->nRelCount) {
-            char* comma = strchr(rel, ',');
-            if (comma) *comma = '\0';
-            T->anRelIds[r++] = atoi(rel);
-            if (!comma) break;
-            rel = comma + 1;
-        }
+        while (tagCur != NULL && *tagCur != '\0' && tagIdx < T->nTagCount) {
+            char* comma = strchr(tagCur, ',');
+            if (comma != NULL)
+                *comma = '\0';
 
-        // collect domain
-        int exists = 0;
-        for (int d = 0; d < nDomainCount; d++) {
-            if (strcmp(aszDomains[d], T->szDomain) == 0) {
-                exists = 1;
+            strncpy(T->aszTags[tagIdx], tagCur, cStrLen);
+            T->aszTags[tagIdx][cStrLen - 1] = '\0';
+
+            ++tagIdx;
+            if (comma == NULL)
                 break;
+            tagCur = comma + 1;
+        }
+
+        /* ---------- sub-topics ---------- */
+        T->nSubCount = atoi(fields[6]);
+        if (T->nSubCount > cMaxSubtopics)
+            T->nSubCount = cMaxSubtopics;
+
+        int subIdx = 0;
+        char* subCur = fields[7];
+
+        while (subCur != NULL && *subCur != '\0' && subIdx < T->nSubCount) {
+            char* comma = strchr(subCur, ',');
+            if (comma != NULL)
+                *comma = '\0';
+
+            T->anSubIds[subIdx] = atoi(subCur);
+            ++subIdx;
+
+            if (comma == NULL)
+                break;
+            subCur = comma + 1;
+        }
+
+        /* ---------- related ---------- */
+        T->nRelCount = atoi(fields[8]);
+        if (T->nRelCount > cMaxRelations)
+            T->nRelCount = cMaxRelations;
+
+        int relIdx = 0;
+        char* relCur = fields[9];
+
+        while (relCur != NULL && *relCur != '\0' && relIdx < T->nRelCount) {
+            char* comma = strchr(relCur, ',');
+            if (comma != NULL)
+                *comma = '\0';
+
+            T->anRelIds[relIdx] = atoi(relCur);
+            ++relIdx;
+
+            if (comma == NULL)
+                break;
+            relCur = comma + 1;
+        }
+
+        /*---------------------------------------------------------
+          3.  Register domain  (umbrella OR no '(' char)
+        ----------------------------------------------------------*/
+        int   keepDomain = 0;
+        if (strstr(T->szDomain, "Evidence Sources") != NULL)
+            keepDomain = 1;                                  /* umbrella */
+        else if (strchr(T->szDomain, '(') == NULL)
+            keepDomain = 1;                                  /* regular  */
+
+        if (keepDomain) {
+            int exists = 0;
+            int d;
+            for (d = 0; d < nDomainCount; ++d) {
+                if (strcmp(aszDomains[d], T->szDomain) == 0) {
+                    exists = 1;
+                    break;
+                }
+            }
+
+            if (!exists && nDomainCount < cMaxDomains) {
+                strncpy(aszDomains[nDomainCount], T->szDomain, cStrLen);
+                aszDomains[nDomainCount][cStrLen - 1] = '\0';
+                ++nDomainCount;
             }
         }
-        if (!exists && nDomainCount < cMaxDomains) {
-            strncpy(aszDomains[nDomainCount++], T->szDomain, cStrLen);
-        }
 
-        nTopicCount++;
+        ++nTopicCount;
+        free(dynLine);      /* release current line buffer */
+        dynLine = NULL;
     }
 
     fclose(fp);
 }
 
 /* ---------------------------------------------------------------------------
-   showSuggestionsForTopic()
-   Now returns void and prints only the related IDs you actually parsed.
-   ------------------------------------------------------------------------- */
-void showSuggestionsForTopic(int id) {
-    Topic* p = &aTopics[id];
+   showSuggestionsForTopic
+   -----------------------
+   Prints the “Suggestions” list for topic *p*.
+   Uses ID → index conversion so the correct names are displayed.
+--------------------------------------------------------------------------- */
+static void showSuggestionsForTopic(const Topic* p)
+{
+    int i;
+
     printf("\n=== Suggestions ===\n");
     if (p->nRelCount == 0) {
         printf("  (none)\n");
         return;
     }
-    for (int i = 0; i < p->nRelCount; i++) {
-        int rid = p->anRelIds[i];
-        if (rid >= 0 && rid < nTopicCount) {
-            printf("  [%d] %s\n", aTopics[rid].nId, aTopics[rid].szName);
+
+    for (i = 0; i < p->nRelCount; ++i) {
+        int  relId = p->anRelIds[i];
+        int  relIdx = findTopicIndexById(relId);
+
+        if (relIdx != -1) {
+            printf("  [%d] %s\n", aTopics[relIdx].nId,
+                aTopics[relIdx].szName);
         }
     }
 }
 
 /* ===========================================================
-   Recursive topic viewer (handles subtopics)
-   =========================================================== */
-void exploreTopic(int nId) {
-    Topic* p = &aTopics[nId];
-    printf("\n--- %s ---\n%s\nDomain: %s\nTags:", p->szName, p->szDesc, p->szDomain);
-    for (int i = 0; i < p->nTagCount; i++)
+   exploreTopic
+   ------------
+   Shows one topic, its subtopics, and related suggestions.
+   Uses findTopicIndexById() so IDs and names are accurate.
+=========================================================== */
+void exploreTopic(int nArrayIdx)
+{
+    const Topic* p = &aTopics[nArrayIdx];
+    int          i;
+
+    printf("\n--- %s ---\n", p->szName);
+    printDesc(p->szDesc);
+    printf("\nDomain: %s\nTags:", p->szDomain);
+    for (i = 0; i < p->nTagCount; ++i)
         printf(" %s", p->aszTags[i]);
     printf("\n");
 
-    // Subtopics
+    /* ---------- Subtopics ---------- */
     if (p->nSubCount > 0) {
         printf("\nSubtopics:\n");
-        for (int i = 0; i < p->nSubCount; i++) {
-            int sid = p->anSubIds[i];
-            if (sid >= 0 && sid < nTopicCount)
-                printf("[%d] %s\n", sid, aTopics[sid].szName);
+        for (i = 0; i < p->nSubCount; ++i) {
+            int subId = p->anSubIds[i];
+            int subIdx = findTopicIndexById(subId);
+
+            if (subIdx != -1) {
+                printf("[%d] %s\n", aTopics[subIdx].nId,
+                    aTopics[subIdx].szName);
+            }
         }
     }
     else {
         printf("(no subtopics)\n");
     }
 
-    // Related topics
-    showSuggestionsForTopic(nId);
+    /* ---------- Suggestions ---------- */
+    showSuggestionsForTopic(p);
 }
 
 /* ===========================================================
@@ -213,22 +361,42 @@ static void printDomainTopics(const char* szDomain) {
 }
 
 /* ===========================================================
-   helper: check if a topic ID belongs to this domain
-========================================================== = */
-static bool topicInDomain(int nId, const char* szDomain) {
-    for (int i = 0; i < nTopicCount; i++) {
-        if (aTopics[i].nId == nId
-            && strcmp(aTopics[i].szDomain, szDomain) == 0)
-            return true;
+   ID  →  array-index helper
+   Returns -1 if the ID does not exist.
+   =========================================================== */
+static int findTopicIndexById(int id)
+{
+    int idx;
+    for (idx = 0; idx < nTopicCount; ++idx) {
+        if (aTopics[idx].nId == id)
+            return idx;
     }
-    return false;
+    return -1;
 }
 
 /* ===========================================================
-   Domain → topic loop  (shows suggestions each drill)
+   topicIdInDomain
+   ----------------
+   Checks whether the topic whose *ID* equals id
+   belongs to the domain string szDomain.
+   (We pass an ID, not an array slot.)
    =========================================================== */
-void browseDomainTopics(const char* szStartDomain, bool bAllowDomainSwitch) {
-    char domain[cStrLen], buf[cStrLen];
+static bool topicIdInDomain(int id, const char* szDomain)
+{
+    int idx = findTopicIndexById(id);
+    if (idx == -1)
+        return false;                               /* ID not found */
+    return strcmp(aTopics[idx].szDomain, szDomain) == 0;
+}
+
+/* ===========================================================
+   browseDomainTopics
+   =========================================================== */
+void browseDomainTopics(const char* szStartDomain, bool bAllowDomainSwitch)
+{
+    char domain[cStrLen];
+    char buf[cStrLen];
+
     strncpy(domain, szStartDomain, cStrLen);
     domain[cStrLen - 1] = '\0';
 
@@ -240,46 +408,50 @@ void browseDomainTopics(const char* szStartDomain, bool bAllowDomainSwitch) {
         if (!fgets(buf, sizeof buf, stdin)) return;
         if (buf[0] == 'x' || buf[0] == 'X') return;
 
-        int current = atoi(buf);
-        if (!topicInDomain(current, domain)) continue;
+        /* ---------- convert typed ID to array index ---------- */
+        int typedId = atoi(buf);
+        int currentIdx = findTopicIndexById(typedId);
+        if (currentIdx == -1)           continue;          /* bad ID */
+        if (!topicIdInDomain(typedId, domain)) continue;   /* ID not in domain */
 
-        // drill‐down loop
+        /* ---------- drill-down loop for this selection ------- */
         while (1) {
             system("cls");
-            exploreTopic(current);  // prints desc, subtopics (or "(no subtopics)"), suggestions
+            exploreTopic(currentIdx);  /* prints name, desc, subtopics, suggestions */
 
             printf("\nSelect ID to explore ('x' = back to '%s'): ", domain);
             if (!fgets(buf, sizeof buf, stdin)) return;
             if (buf[0] == 'x' || buf[0] == 'X') break;
 
-            int next = atoi(buf);
+            int nextId = atoi(buf);
+            int nextIdx = findTopicIndexById(nextId);
+            if (nextIdx == -1) continue;            /* invalid ID */
+
+            /* --- allow only legitimate transitions ----------- */
             bool ok = false;
+            int i;
 
-            // allow subtopics
-            for (int i = 0; i < aTopics[current].nSubCount; i++) {
-                if (aTopics[current].anSubIds[i] == next) {
-                    ok = true; break;
-                }
-            }
-            // allow suggestions
-            for (int i = 0; i < aTopics[current].nRelCount; i++) {
-                if (aTopics[current].anRelIds[i] == next) {
-                    ok = true; break;
-                }
-            }
-            if (!ok) continue;
+            for (i = 0; i < aTopics[currentIdx].nSubCount; ++i)
+                if (aTopics[currentIdx].anSubIds[i] == nextId) { ok = true; break; }
 
-            // switch domain only if allowed by mode 1
-            if (bAllowDomainSwitch
-                && strcmp(aTopics[next].szDomain, domain) != 0)
+            if (!ok) {
+                for (i = 0; i < aTopics[currentIdx].nRelCount; ++i)
+                    if (aTopics[currentIdx].anRelIds[i] == nextId) { ok = true; break; }
+            }
+
+            if (!ok) continue;                       /* not a valid child */
+
+            /* --- optional automatic domain switch ------------ */
+            if (bAllowDomainSwitch &&
+                strcmp(aTopics[nextIdx].szDomain, domain) != 0)
             {
-                strncpy(domain, aTopics[next].szDomain, cStrLen);
+                strncpy(domain, aTopics[nextIdx].szDomain, cStrLen);
                 domain[cStrLen - 1] = '\0';
             }
 
-            current = next;
+            currentIdx = nextIdx;                   /* move to chosen topic */
         }
-        // back to domain list
+        /* out of drill-down: show domain list again */
     }
 }
 
@@ -290,86 +462,74 @@ void browseDomainTopics(const char* szStartDomain, bool bAllowDomainSwitch) {
    - let user pick one, then drill immediately into that topic
    - on 'x', return to a fixed-domain browse of its home domain
    ------------------------------------------------------------------------- */
-void searchByTag(void) {
+void searchByTag(void)
+{
     char tag[cStrLen], buf[cStrLen];
     int  results[cMaxTopics], rc = 0;
 
-    // 1) Get tag from user
     printf("\nEnter tag to search: ");
     if (!fgets(tag, sizeof tag, stdin)) return;
     strtok(tag, "\r\n");
 
-    // 2) Find all topics with that tag
-    for (int i = 0; i < nTopicCount; i++) {
-        for (int t = 0; t < aTopics[i].nTagCount; t++) {
+    /* find matches */
+    int i;
+    for (i = 0; i < nTopicCount; ++i) {
+        int t;
+        for (t = 0; t < aTopics[i].nTagCount; ++t) {
             if (strcmp(tag, aTopics[i].aszTags[t]) == 0) {
-                results[rc++] = aTopics[i].nId;
+                results[rc++] = aTopics[i].nId;   /* store *ID*, not index */
                 break;
             }
         }
     }
 
-    // 3) No matches?
     if (rc == 0) {
         printf("\nNo topics found with tag '%s'.\n", tag);
         return;
     }
 
-    // 4) Show matches
     printf("\nTopics matching '%s':\n", tag);
-    for (int i = 0; i < rc; i++) {
-        Topic* T = &aTopics[results[i]];
+    for (i = 0; i < rc; ++i) {
+        int idx = findTopicIndexById(results[i]);
         printf("  [%d] %s  (domain: %s)\n",
-            T->nId, T->szName, T->szDomain);
+            aTopics[idx].nId, aTopics[idx].szName, aTopics[idx].szDomain);
     }
 
-    // 5) Pick one
     printf("\nSelect ID to explore ('x' = main menu): ");
     if (!fgets(buf, sizeof buf, stdin)) return;
     if (buf[0] == 'x' || buf[0] == 'X') return;
 
     int startId = atoi(buf);
-    bool ok = false;
-    for (int i = 0; i < rc; i++) {
-        if (results[i] == startId) { ok = true; break; }
-    }
-    if (!ok) return;
+    int current = findTopicIndexById(startId);
+    if (current == -1) return;
 
-    // 6) Remember its home domain
     char home[cStrLen];
-    strncpy(home, aTopics[startId].szDomain, cStrLen);
+    strncpy(home, aTopics[current].szDomain, cStrLen);
     home[cStrLen - 1] = '\0';
 
-    // 7) Drill directly into startId
-    int current = startId;
     while (1) {
         system("cls");
-        exploreTopic(current);  // name/desc, subtopics or "(no subtopics)", suggestions
+        exploreTopic(current);
 
         printf("\nSelect ID to explore ('x' = back to domain '%s'): ", home);
         if (!fgets(buf, sizeof buf, stdin)) return;
         if (buf[0] == 'x' || buf[0] == 'X') break;
 
-        int next = atoi(buf);
-        bool valid = false;
-        // allow its subtopics
-        for (int i = 0; i < aTopics[current].nSubCount; i++) {
-            if (aTopics[current].anSubIds[i] == next) {
-                valid = true; break;
-            }
-        }
-        // allow its suggestions
-        for (int i = 0; i < aTopics[current].nRelCount; i++) {
-            if (aTopics[current].anRelIds[i] == next) {
-                valid = true; break;
-            }
-        }
-        if (valid) {
-            current = next;
-        }
+        int nextId = atoi(buf);
+        int nextIdx = findTopicIndexById(nextId);
+        if (nextIdx == -1) continue;
+
+        /* allow transitions */
+        int ok = 0;
+        int s;
+        for (s = 0; s < aTopics[current].nSubCount; ++s)
+            if (aTopics[current].anSubIds[s] == nextId) { ok = 1; break; }
+        for (s = 0; s < aTopics[current].nRelCount; ++s)
+            if (aTopics[current].anRelIds[s] == nextId) { ok = 1; break; }
+        if (ok)
+            current = nextIdx;
     }
 
-    // 8) Finally, drop into a fixed-domain browse of home
     browseDomainTopics(home, false);
 }
 
