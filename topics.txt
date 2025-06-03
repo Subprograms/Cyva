@@ -1,25 +1,104 @@
-0|Threat|An action or mechanism that can be used for exploitation.|Fundamentals|3|risk,attack,danger|0||3|1,4,5
-1|Vulnerability|A flaw or weakness that can be exploited.|Fundamentals|3|risk,weakness,exposure|0||2|0,4
-2|Threat Actor|The entity tied to a threat; may be intentional or unintentional, internal or external.|Fundamentals|3|attacker,insider,external|5|6,7,8,9,10|1|0
-3|Attack Surface|Points where vulnerabilities may be discovered: ports, software, users, devices.|Fundamentals|3|surface,exposure,entrypoints|0||2|1,4
-4|Threat Vector|Path or mechanism to exploit vulnerabilities in an attack surface.|Fundamentals|3|vector,pathway,exploit|0||5|0,1,3,14,15
-5|Risk|Risk = Impact × Likelihood. Measures chance and damage of exploitation.|Fundamentals|3|metric,risk,likelihood|0||2|0,1
-6|Black Hat Hacker|Performs unauthorized exploitation and breaks security policies.|Attackers|3|unauthorized,malicious,blackhat|0||1|2
-7|White Hat Hacker|Performs authorized ethical exploitation for remediation or testing.|Attackers|3|ethical,whitehat,testing|0||1|1
-8|Advanced Persistent Threat (APT)|Prolonged and targeted attack maintaining unauthorized access over time.|Attackers|3|apt,targeted,persistent|0||3|6,9,10
-9|External Threat Actor|Attacker with no initial access, requires recon and infiltration.|Attackers|3|external,reconnaissance,unauthorized|0||1|8
-10|Internal Threat Actor|Attacker with initial access, e.g. employees, contractors.|Attackers|3|insider,internal,authorized|0||1|8
-11|Chaotic Motivation|Motivated by disruption or vandalism without specific goal.|Nature of Attacks|3|chaotic,disruption,vandalism|0||2|14,15
-12|Financial Motivation|Driven by extortion, fraud, or blackmail for monetary gain.|Nature of Attacks|3|extortion,fraud,blackmail|0||1|4
-13|Political Motivation|Aims to cause political change or exfiltrate classified info.|Nature of Attacks|3|espionage,politics,nation-state|0||1|8
-14|Brute Force|Trial-and-error password guessing, sometimes automated.|Nature of Attacks|3|password,guessing,bruteforce|0||1|4
-15|Social Engineering|Exploiting human trust via trickery, impersonation, or coercion.|Nature of Attacks|3|trickery,impersonation,coercion|0||1|4
-16|MAC Filtering|Limits network access to allowed MAC addresses on switch ports.|Port Security|3|mac,filtering,access control|0||1|17
-17|Port-Based Network Access Control (PNAC)|IEEE 802.1X-based framework for authentication via RADIUS.|Port Security|3|802.1X,pnac,radius|0||1|16
-18|Air Gap|Full physical isolation from all networks, used for legacy/high-risk hosts.|Port Security|3|isolation,airgap,offline|0||0|
-19|Firewall|Security control for filtering traffic using stateless/stateful inspection.|Network Security|3|firewall,inspection,filtering|0||3|20,21,23
-20|Proxy Server|Intermediary for enforcing traffic policies and obfuscating endpoints.|Network Security|3|proxy,forward,reverse|0||1|19
-21|IDS / IPS|Detects or actively prevents attacks using signatures or heuristics.|Network Security|3|ids,ips,detection|0||1|19
-22|Web Application Firewall (WAF)|Protects HTTP apps from injection, DoS, and other threats.|Internetwork Security|3|waf,http,web apps|0||2|19,20
-23|VPN|Creates an encrypted tunnel for secure remote access to private resources.|Internetwork Security|3|vpn,tunnel,remote|1|24|1|19
-24|IPSec|Secures transmission paths at the network layer.|Internetwork Security|3|ipsec,network layer,secure path|0||1|23
+0|Threat|An action or mechanism that can be used for exploitation.|Fundamentals|5|risk,attack,danger,adversary,malicious|0||3|1,4,5
+1|Vulnerability|A flaw or weakness that can be exploited.|Fundamentals|5|risk,weakness,exposure,flaw,bug|0||2|0,4
+2|Threat Actor|The entity tied to a threat; may be intentional or unintentional, internal or external.|Fundamentals|5|attacker,insider,external,adversary,actor|5|6,7,8,9,10|1|0
+3|Attack Surface|Points where vulnerabilities may be discovered: ports, software, users, devices.|Fundamentals|5|surface,exposure,entrypoints,interfaces,assets|0||2|1,4
+4|Threat Vector|Path or mechanism to exploit vulnerabilities in an attack surface.|Fundamentals|5|vector,pathway,exploit,route,channel|0||5|0,1,3,14,15
+5|Risk|Risk = Impact x Likelihood. Measures chance and damage of exploitation.|Fundamentals|5|metric,risk,likelihood,impact,probability|0||2|0,1
+6|Black Hat Hacker|Performs unauthorized exploitation and breaks security policies.|Attackers|5|unauthorized,malicious,blackhat,criminal,intruder|0||1|2
+7|White Hat Hacker|Performs authorized ethical exploitation for remediation or testing.|Attackers|5|ethical,whitehat,testing,authorized,pen-tester|0||1|1
+8|Advanced Persistent Threat (APT)|Prolonged and targeted attack maintaining unauthorized access over time.|Attackers|5|apt,targeted,persistent,stealth,advanced|0||3|6,9,10
+9|External Threat Actor|Attacker with no initial access, requires recon and infiltration.|Attackers|5|external,reconnaissance,unauthorized,outsider,remote|0||1|8
+10|Internal Threat Actor|Attacker with initial access, e.g. employees, contractors.|Attackers|5|insider,internal,authorized,employee,contractor|0||1|8
+11|Chaotic Motivation|Motivated by disruption or vandalism without specific goal.|Nature of Attacks|5|chaotic,disruption,vandalism,random,destructive|0||2|14,15
+12|Financial Motivation|Driven by extortion, fraud, or blackmail for monetary gain.|Nature of Attacks|5|extortion,fraud,blackmail,profit,monetary|0||1|4
+13|Political Motivation|Aims to cause political change or exfiltrate classified info.|Nature of Attacks|5|espionage,politics,nation-state,ideology,activism|0||1|8
+14|Brute Force|Trial-and-error password guessing, sometimes automated.|Nature of Attacks|5|password,guessing,bruteforce,cracking,automation|0||1|4
+15|Social Engineering|Exploiting human trust via trickery, impersonation, or coercion.|Nature of Attacks|5|trickery,impersonation,coercion,phishing,deception|0||1|4
+16|MAC Filtering|Limits network access to allowed MAC addresses on switch ports.|Port Security|5|mac,filtering,access control,whitelist,network|0||1|17
+17|Port-Based Network Access Control (PNAC)|IEEE 802.1X-based framework for authentication via RADIUS.|Port Security|5|802.1X,pnac,radius,authentication,port|0||1|16
+18|Air Gap|Full physical isolation from all networks, used for legacy or high-risk hosts.|Port Security|5|isolation,airgap,offline,segmentation,physical|0||0|
+19|Firewall|Security control for filtering traffic using stateless or stateful inspection.|Network Security|5|firewall,inspection,filtering,packet,acl|0||3|20,21,23
+20|Proxy Server|Intermediary for enforcing traffic policies and obfuscating endpoints.|Network Security|5|proxy,forward,reverse,caching,anonymization|0||1|19
+21|IDS / IPS|Detects or actively prevents attacks using signatures or heuristics.|Network Security|5|ids,ips,detection,prevention,signature|0||1|19
+22|Web Application Firewall (WAF)|Protects HTTP apps from injection, DoS, and other threats.|Internetwork Security|5|waf,http,web apps,layer7,protection|0||2|19,20
+23|VPN|Creates an encrypted tunnel for secure remote access to private resources.|Internetwork Security|5|vpn,tunnel,remote,encrypted,secure|1|24|1|19
+24|IPSec|Secures transmission paths at the network layer.|Internetwork Security|5|ipsec,network layer,secure path,encryption,authentication|0||1|23
+25|File Evidence Sources|On-disk logs, databases, and other files that preserve forensic artifacts.|Evidence Sources|5|file,artifact,windows,evidence,forensics|8|34,35,36,37,38,39,40,41|0||
+26|Registry Evidence Sources|Registry hives or keys whose values reveal forensic artifacts.|Evidence Sources|5|registry,artifact,windows,evidence,forensics|7|27,28,29,30,31,32,33|0||
+27|Account Usage (Reg)|Registry keys that track local-account logon times and status.|Registry Evidence Sources|5|account,logon,registry,authentication,sam|1|42|0||
+28|Browser Usage (Reg)|Registry keys that store Explorer or Start search terms and typed URLs.|Registry Evidence Sources|5|browser,history,registry,search,typedurl|2|43,44|0||
+29|Deleted File Knowledge (Reg)|Registry traces that remain after files or drives are removed.|Registry Evidence Sources|5|deleted,mru,registry,recycle,thumbcache|3|45,46,47|0||
+30|External Device / USB Usage (Reg)|Registry artifacts showing every USB device ever attached.|Registry Evidence Sources|5|usb,device,registry,removable,serial|4|48,49,50,51|0||
+31|File / Folder Opening (Reg)|MRU and ShellBag registry keys proving user file or folder access.|Registry Evidence Sources|5|mru,shellbags,registry,fileaccess,recent|5|52,53,54,55,56|0||
+32|Network / Location (Reg)|Registry keys tying a host to Wi-Fi or LAN profiles and SRUM stats.|Registry Evidence Sources|5|network,location,registry,ssid,timezone|6|57,58,59,60,61,62|0||
+33|Program Execution (Reg)|Registry caches that log GUI launches and execution metadata.|Registry Evidence Sources|5|execution,userassist,registry,shimcache,run|5|63,64,65,66,67|0||
+34|Account Usage Logs (File)|EVTX and hive files revealing logons, password changes, and RDP sessions.|File Evidence Sources|5|account,logon,file,evtx,log|3|69,70,71|0||
+35|Browser Usage Files (File)|History, cookie, and WebCache databases capturing web activity.|File Evidence Sources|5|browser,history,file,cookies,cache|7|72,73,74,75,76,77,78|0||
+36|Deleted File Knowledge (File)|Thumb-cache, Recycle-bin, or WebCache files that survive deletions.|File Evidence Sources|5|deleted,thumb,recycle,webcache,carve|4|79,80,81,82|0||
+37|External Device / USB Logs (File)|Text or EVTX logs and LNK files proving USB connections and use.|File Evidence Sources|5|usb,log,file,plugplay,setupapi|3|83,84,85|0||
+38|File Download Artifacts (File)|Browser, mail, and IM records of downloaded or transferred files.|File Evidence Sources|5|download,transfer,file,attachment,zoneid|9|86,87,88,89,90,91,92,93,94|0||
+39|File / Folder Opening (File)|JumpLists, Layout.ini, and ActivitiesCache showing recency of use.|File Evidence Sources|5|open,jumplist,file,prefetch,timeline|3|95,96,97|0||
+40|Network / Location Logs (File)|Operational EVTX logs tying the host to specific SSIDs or BSSIDs.|File Evidence Sources|5|network,wifi,evtx,ssid,connection|2|98,99|0||
+41|Program Execution Files (File)|On-disk caches that definitively prove or fingerprint execution.|File Evidence Sources|5|execution,prefetch,file,amcache,srum|5|100,101,102,103,104|0||
+42|SAM RID Subkeys|HKLM\SAM\Domains\Account\Users\<RID sub-keys>`Shows LastLoginTime & PasswordLastSet (REG_BINARY).`Offsets 0x08 = last-logon FILETIME  0x0C = password-change FILETIME.|Account Usage (Reg)|5|sam,lastlogin,password,timestamps,hive|0||0||
+43|Explorer WordWheelQuery|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\WordWheelQuery`Search strings typed in Explorer / Start (REG_BINARY).`Keeps last Explorer / Start-menu search terms.|Browser Usage (Reg)|5|search,explorer,query,wordwheel,history|0||0||
+44|IE TypedURLs|HKCU\Software\Microsoft\Internet Explorer\TypedURLs`Typed URL list (REG_BINARY).`URLs manually entered in IE address bar.|Browser Usage (Reg)|5|typedurls,ie,address,history,registry|0||0||
+45|MountPoints2 (HKCU)|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\MountPoints2\<GUID>`LastWrite = last user access to that removable volume (REG_BINARY).`USB -> user correlation.|Deleted File Knowledge (Reg)|5|mountpoints2,usb,time,volume,guid|0||0||
+46|BitBucket Volume|HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\BitBucket\Volume\<GUID>`LastWrite marks last Recycle-Bin use on that volume (REG_BINARY).`Useful USB evidence.|Deleted File Knowledge (Reg)|5|bitbucket,recycle,time,volume,registry|0||0||
+47|LastVisitedPidlMRU|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\LastVisitedPidlMRU`Executable that opened a file + last folder path (REG_BINARY).`"Where was a doc last opened from?"|Deleted File Knowledge (Reg)|5|lastvisited,comdlg32,mru,folder,opensave|0||0||
+48|USBSTOR Key|HKLM\SYSTEM\CurrentControlSet\Enum\USBSTOR\<VendorID & ProductID>\<Serial>`Vendor, product, revision, unique serial (REG_SZ / MULTI_SZ).`Identifies every USB mass-storage device.|External Device / USB Usage (Reg)|5|usbstor,vendor,serial,device,storage|0||0||
+49|USB Enum Key|HKLM\SYSTEM\CurrentControlSet\Enum\USB\<VendorID & ProductID>\<InstanceID>`Device class & serial (REG_SZ / MULTI_SZ + REG_DWORD).`Tracks all USB devices.|External Device / USB Usage (Reg)|5|usb,enum,class,device,registry|0||0||
+50|MountedDevices|HKLM\SYSTEM\MountedDevices\<DriveLetter>`Binary value = Volume Serial Number (REG_BINARY).`Shows last drive-letter mapped to a volume.|External Device / USB Usage (Reg)|5|mounted,drive,serial,volume,registry|0||0||
+51|Windows Portable Devices|HKLM\SOFTWARE\Microsoft\Windows Portable Devices\Devices\<InstanceID>`Volume label & serial number (REG_SZ).`Alternate last-mapped drive info.|External Device / USB Usage (Reg)|5|portable,usb,label,serial,device|0||0||
+52|RecentDocs (root)|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs`150 most-recent files / folders (REG_BINARY) + LastWrite time.`Populates "Recent" menu.|File / Folder Opening (Reg)|5|recentdocs,files,paths,history,mru|0||0||
+53|ShellBags BagMRU|HKCU\Software\Microsoft\Windows\Shell\BagMRU`LastWrite, MRUListEx, numbered Shell ID values.`Decodes folder path & recency.|File / Folder Opening (Reg)|5|shellbags,bagmru,folders,registry,explorer|0||0||
+54|ShellBags Bags|HKCU\Software\Microsoft\Windows\Shell\Bags\<Number>`ShellFolder, LogicalViewMode, ItemPos*, Snippet / IDLIST.`Confirms folder render, view, USB root...|File / Folder Opening (Reg)|5|shellbags,bags,view,explorer,metadata|0||0||
+55|Office FileMRU|HKCU\Software\Microsoft\Office\<App>\UserMRU\FileMRU`Full path, last-opened time, AppID (REG_SZ).`Office-specific recent-docs list.|File / Folder Opening (Reg)|5|office,mru,docs,recent,officeapp|0||0||
+56|OpenSavePidlMRU|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\ComDlg32\OpenSavePidlMRU\<ext>`Stores last N files opened/saved via common dialog (REG_BINARY).`Per-extension evidence.|File / Folder Opening (Reg)|5|opensave,comdlg32,ext,history,mru|0||0||
+57|TimeZoneInformation|HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation`TimeZoneKeyName (REG_SZ) + Bias & ActiveTimeBias (REG_DWORD).`Anchor for correlating timestamps.|Network / Location (Reg)|5|timezone,bias,anchor,time,system|0||0||
+58|NetworkList Signatures (Managed)|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Managed\<GUID>`Description (SSID/LAN), DnsSuffix, FirstNetwork, ProfileGuid (REG_SZ).`Links to Profiles key.|Network / Location (Reg)|5|ssid,managed,profile,network,signature|0||0||
+59|NetworkList Signatures (Unmanaged)|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Signatures\Unmanaged\<GUID>`DefaultGatewayMac (REG_BINARY), Source (REG_DWORD), Key LastWrite.`Gateway MAC + connect time.|Network / Location (Reg)|5|gateway,unmanaged,profile,network,mac|0||0||
+60|NetworkList Profiles|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\NetworkList\Profiles\<GUID>`ProfileName, DateCreated, DateLastConnected (REG_BINARY), Category (REG_DWORD).`Timeline per network.|Network / Location (Reg)|5|profiles,network,date,ssid,connection|0||0||
+61|SRUM Network GUID|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions\{DD6636C4-8929-4683-974E-22C046A43763}`DllName & CapabilityFlags.`Points to SRUDB.dat table bytes in/out per app per hour.|Network / Location (Reg)|5|srum,bytes,app,network,usage|0||0||
+62|SRUM Connectivity GUID|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions\{973F5D5C-1D90-4944-BE8E-24B94231A174}`DllName & CapabilityFlags.`Points to SRUDB.dat table interface & connectivity state.|Network / Location (Reg)|5|srum,connect,state,network,interface|0||0||
+63|Search JumpListData|HKCU\Software\Microsoft\Windows\CurrentVersion\Search\JumpListData`Run-count (upper 32) & last-run FILETIME (lower 32) (REG_QWORD).`Evidence even with Prefetch off.|Program Execution (Reg)|5|jumplistdata,search,run,execution,history|0||0||
+64|SRUM App Timeline GUID|HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\SRUM\Extensions\{d10ca2fe-6fcf-4f6d-848e-b2e99266fa89}`DllName & CapabilityFlags.`Logs foreground-usage duration, session ID, user SID for every exe.|Program Execution (Reg)|5|srum,timeline,app,foreground,usage|0||0||
+65|AppCompatCache|HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\AppCompatCache`Executable path & last-modified time (REG_BINARY).`Raw exe-run cache.|Program Execution (Reg)|5|shimcache,execute,path,appcompat,cache|0||0||
+66|UserAssist|HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\UserAssist\{GUID}\Count`ROT-13 path, run-count, last-run FILETIME.`Per-user GUI execution history.|Program Execution (Reg)|5|userassist,rot13,run,gui,usage|0||0||
+67|BAM / DAM State Keys|HKLM\SYSTEM\CurrentControlSet\Services\bam\State\UserSettings\<SID> and ...\dam\...`<exe-path> value = last-run FILETIME (REG_BINARY).`Background / Desktop Activity Moderator.|Program Execution (Reg)|5|bam,dam,lastrun,execution,background|0||0||
+69|SAM Hive File|C:\Windows\System32\config\SAM`Local-user LastLogin FILETIME & PasswordLastSet FILETIME per RID.`Export hive to parse.|Account Usage Logs (File)|5|sam,hive,file,login,password|0||0||
+70|Security.evtx 4624 / 4625|C:\Windows\System32\winevt\Logs\Security.evtx`4624 = successful logon`4625 = failed logon`4778/4779 = RDP session start/end (.evtx).|Account Usage Logs (File)|5|security,evtx,4624,logon,failed|0||0||
+71|System.evtx 7045|C:\Windows\System32\winevt\Logs\System.evtx`Event 7045 "A service was installed on the system".`Shows new-service installs.|Account Usage Logs (File)|5|system,evtx,7045,service,install|0||0||
+72|Chrome History ("urls")|%LOCALAPPDATA%\Google\Chrome\User Data\Default\History`SQLite table "urls": URL, title, visit_count, visit_time.|Browser Usage Files (File)|5|chrome,history,urls,browser,sqlite|0||0||
+73|Edge History ("urls")|%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\History`SQLite table "urls": URL, title, visit_count, visit_time.|Browser Usage Files (File)|5|edge,history,urls,browser,sqlite|0||0||
+74|Firefox places.sqlite|%APPDATA%\Mozilla\Firefox\Profiles\<profile>.default-release\places.sqlite`moz_places (URL, title, visit_time, visit_count)`moz_annos (download path, temp-name, size, referrer URL, start & end time).|Browser Usage Files (File)|5|firefox,places,history,browser,sqlite|0||0||
+75|Chrome Cookies|%LOCALAPPDATA%\Google\Chrome\User Data\Default\Network\Cookies`Domain, name=value, creation_time, last_access_time.|Browser Usage Files (File)|5|chrome,cookies,http,browser,session|0||0||
+76|Edge Cookies|%LOCALAPPDATA%\Microsoft\Edge\User Data\Default\Network\Cookies`Same schema as Chrome - persistent cookies.|Browser Usage Files (File)|5|edge,cookies,http,browser,session|0||0||
+77|Firefox cookies.sqlite|%APPDATA%\Mozilla\Firefox\Profiles\<profile>\cookies.sqlite`Host, name=value, creation_time, last_access_time (.sqlite).|Browser Usage Files (File)|5|firefox,cookies,http,browser,sqlite|0||0||
+78|WebCacheV*.dat (Browser)|%USERPROFILE%\AppData\Local\Microsoft\Windows\WebCache\WebCacheV<version>.dat`Visited URLs, visit_count, timestamps - IE10 / Edge Legacy history.|Browser Usage Files (File)|5|webcache,ie,edge,history,cache|0||0||
+79|thumbcache_*.db|%USERPROFILE%\AppData\Local\Microsoft\Windows\Explorer\thumbcache_<size>.db`Thumbnail + original filename & last-modified time (.db SQLite).|Deleted File Knowledge (File)|5|thumbcache,thumbnail,db,deletion,graphics|0||0||
+80|Thumbs.db|<Folder viewed with thumbnails>\Thumbs.db`Thumbnail + original filename & last-modified time (.db).`Persists on shares & legacy drives.|Deleted File Knowledge (File)|5|thumbsdb,thumbnail,legacy,deletion,images|0||0||
+81|Recycle Bin $I / $R|$Recycle.Bin\<SID>\$I<orig>.ext / $R<content>.ext`$I = original path + delete time`$R = recoverable data.|Deleted File Knowledge (File)|5|recyclebin,deleted,files,metadata,forensics|0||0||
+82|WebCacheV*.dat (FileHist)|%USERPROFILE%\AppData\Local\Microsoft\Windows\WebCache\WebCacheV<version>.dat`File accesses, file downloads, site visits & session data (.dat).|Deleted File Knowledge (File)|5|webcache,file,history,downloads,cache|0||0||
+83|setupapi.dev.log|C:\Windows\INF\setupapi.dev.log (+ setupapi.dev.<date>)`First install, last connect & removal timestamps (.log).`USB Plug-and-Play timeline.|External Device / USB Logs (File)|5|setupapi,usb,log,plugplay,installation|0||0||
+84|System.evtx 20001|C:\Windows\System32\winevt\Logs\System.evtx`Event 20001 (Plug-and-Play): timestamp, VID/PID, serial, status.|External Device / USB Logs (File)|5|system,evtx,usb,plugplay,20001|0||0||
+85|Recent USB LNKs|%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Recent / ...\Office\Recent\<file>.lnk`Created/modified time, original path, volume label (.lnk).`Proves file opened from USB.|External Device / USB Logs (File)|5|lnk,usb,shortcut,recent,files|0||0||
+86|Chrome Downloads table|Chrome History SQLite "downloads"`target_path, URL, start_time, end_time.|File Download Artifacts (File)|5|chrome,download,table,browser,sqlite|0||0||
+87|Edge Downloads table|Edge History SQLite "downloads"`Same columns: target_path, URL, times.|File Download Artifacts (File)|5|edge,download,table,browser,sqlite|0||0||
+88|Firefox moz_annos (DL)|moz_annos rows in places.sqlite`download path, temp-name, file size, referrer URL, start & end time.|File Download Artifacts (File)|5|firefox,moz_annos,download,browser,sqlite|0||0||
+89|Firefox downloads.sqlite|%APPDATA%\Mozilla\Firefox\Profiles\<profile>\downloads.sqlite`moz_downloads: file name, source URL, MIME, saved-to path, bytes, start & end times.|File Download Artifacts (File)|5|firefox,download,sqlite,browser,history|0||0||
+90|Outlook .ost Attachments|%USERPROFILE%\AppData\Local\Microsoft\Outlook\<mailbox>.ost`Attachment name, original path, received time, sender (.ost).|File Download Artifacts (File)|5|outlook,attachment,ost,download,email|0||0||
+91|Content.Outlook Cache|%LOCALAPPDATA%\Microsoft\Windows\INetCache\Content.Outlook\<rand>.<ext>`Copies of every opened Outlook attachment; persists after message deletion.|File Download Artifacts (File)|5|outlook,inetcache,file,attachment,email|0||0||
+92|Skype Transfers main.db|%APPDATA%\Microsoft\Skype for Desktop\<user>\skylib\main.db`Transfers table: filename, size, transferred_time (.db).|File Download Artifacts (File)|5|skype,transfer,db,download,voip|0||0||
+93|Teams Receive or Send Cache|%USERPROFILE%\Downloads\Microsoft Teams & %LOCALAPPDATA%\Packages\Microsoft.SkypeApp_<hash>\LocalState\ReceiveCache\<GUID>.<ext>`File timestamps + sender/recipient JSON; main.db stores original filename.|File Download Artifacts (File)|5|teams,download,json,transfer,chat|0||0||
+94|Zone.Identifier ADS|<DownloadedFile>:Zone.Identifier`ZoneID, ReferrerURL, HostURL (Alternate Data Stream).`Marks Internet origin (Zone 3).|File Download Artifacts (File)|5|zoneid,ads,internet,download,security|0||0||
+95|JumpList automaticDestinations|%APPDATA%\Microsoft\Windows\Recent\AutomaticDestinations\<AppID-hash>.automaticDestinations-ms`Recent items per app + first & last open time.|File / Folder Opening (File)|5|jumplist,automaticdest,ms,recent,files|0||0||
+96|Prefetch Layout.ini (Open)|C:\Windows\Prefetch\Layout.ini`Ordered list of executables used at boot / start (.ini).`30-60-day app-usage stats.|File / Folder Opening (File)|5|layout.ini,prefetch,boot,usage,files|0||0||
+97|ActivitiesCache.db (Open)|%USERPROFILE%\AppData\Local\ConnectedDevicesPlatform\L.<SID>\ActivitiesCache.db`App ID, last active time, focus duration (.db SQLite).`Windows Timeline.|File / Folder Opening (File)|5|activities,timeline,db,usage,windows|0||0||
+98|WLAN-AutoConfig Operational|C:\Windows\System32\winevt\Logs\Microsoft-Windows-WLAN-AutoConfig%4Operational.evtx`Events 8000-11000: SSID, BSSID, connect / disconnect (.evtx).|Network / Location Logs (File)|5|wifi,evtx,ssid,connection,log|0||0||
+99|Hyper-V VmSwitch Operational|C:\Windows\System32\winevt\Logs\Microsoft-Windows-Hyper-V-VmSwitch%4Operational.evtx`Events 8000-11000: NIC/MAC & network activity (.evtx).|Network / Location Logs (File)|5|hyperv,vmswitch,evtx,network,virtual|0||0||
+100|SRUDB.dat|C:\Windows\System32\sru\SRUDB.dat`Extensible Storage Engine database.`Per-hour app execution + network-usage rows keyed by SRUM GUIDs.|Program Execution Files (File)|5|sru,db,execution,usage,network|0||0||
+101|Amcache.hve|C:\Windows\AppCompat\Programs\Amcache.hve`SHA-1, full path, compile / first-run time, publisher metadata (.hve).|Program Execution Files (File)|5|amcache,hash,exe,execution,registry|0||0||
+102|Prefetch .pf|C:\Windows\Prefetch\<ExeName>-<Hash>.pf`Executable path, run-count, first run, last 8 runs, loaded DLL list (.pf).`Long-term exe history.|Program Execution Files (File)|5|prefetch,execution,times,history,performance|0||0||
+103|ActivitiesCache.db (Exec)|%USERPROFILE%\AppData\Local\ConnectedDevicesPlatform\L.<SID>\ActivitiesCache.db`App ID, last active time, focus duration (.db SQLite).`Correlates exe focus-time.|Program Execution Files (File)|5|activities,timeline,exec,usage,focus|0||0||
+104|Prefetch Layout.ini (Exec)|C:\Windows\Prefetch\Layout.ini`Ordered list of executables used at boot / start (.ini).`Global prefetch stats for Program Execution.|Program Execution Files (File)|5|layout.ini,prefetch,exec,boot,stats|0||0||
