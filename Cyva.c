@@ -286,7 +286,7 @@ void loadTopicsFromFile(void)
    showSuggestionsForTopic
    -----------------------
    Prints the “Suggestions” list for topic *p*.
-   Uses ID → index conversion so the correct names are displayed.
+   Uses ID - index conversion so the correct names are displayed.
 --------------------------------------------------------------------------- */
 static void showSuggestionsForTopic(const Topic* p)
 {
@@ -307,6 +307,97 @@ static void showSuggestionsForTopic(const Topic* p)
                 aTopics[relIdx].szName);
         }
     }
+}
+
+/* ===========================================================
+   getDirFromDesc()
+   -----------------
+   We treat the FIRST chunk of szDesc (up to the first back-tick
+   or newline) as “the directory / registry path”.  If it begins
+   with a drive letter, UNC (\\), %, or HK (registry), we return
+   a *duplicate* string – caller must free().  Otherwise NULL.
+
+   If we encounter '<' or '{' within the directory, we only open
+   the lowest level possible before such, such are placeholder
+   for parameters that the user must provide.
+   =========================================================== */
+static char* getDirFromDesc(const char* szDesc)
+{
+    if (!szDesc || !*szDesc) return NULL;
+
+    /* grab the first physical line / before first back-tick */
+    const char* end = strpbrk(szDesc, "`\r\n");
+    size_t      n = end ? (size_t)(end - szDesc) : strlen(szDesc);
+
+    if (n < 2) return NULL;
+
+    /* reject obvious registry paths */
+    if (!strncmp(szDesc, "HK", 2))
+        return NULL;
+
+    /* minimal validation for filesystem paths */
+    if (!(isalpha((unsigned char)szDesc[0]) && szDesc[1] == ':') &&   /* C:\ */
+        strncmp(szDesc, "\\\\", 2) &&                               /* UNC */
+        szDesc[0] != '%')                                              /* %VAR% */
+        return NULL;
+
+    /* copy into scratch buffer and NUL-terminate */
+    char* tmp = (char*)malloc(n + 1);
+    if (!tmp) return NULL;
+    memcpy(tmp, szDesc, n);
+    tmp[n] = '\0';
+
+    /* walk through segments and stop before placeholders / filenames */
+    char* out = (char*)malloc(n + 2);          /* enough */
+    if (!out) { free(tmp); return NULL; }
+    out[0] = '\0';
+
+    char* tok = strtok(tmp, "\\/");
+    int   needSlash = 0;
+
+    while (tok) {
+        if (strchr(tok, '<') || strchr(tok, '{'))
+            break;                              /* placeholder segment    */
+        if (strchr(tok, '.'))
+            break;                              /* filename (has a dot)   */
+
+        if (needSlash)  strcat(out, "\\");
+        strcat(out, tok);
+        needSlash = 1;
+
+        tok = strtok(NULL, "\\/");
+    }
+
+    free(tmp);
+
+    /* if we never copied anything, it wasn’t usable */
+    if (out[0] == '\0') { free(out); return NULL; }
+
+    return out;                                 /* caller frees */
+}
+
+/* ===========================================================
+   openDir()
+   ---------
+   Cross-platform “best effort” opener.  Windows uses explorer,
+   others fall back to xdg-open or open.
+   =========================================================== */
+static void openDir(const char* path)
+{
+# if defined(_WIN32)
+    /* Surround with quotes in case of spaces */
+    char cmd[512];
+    snprintf(cmd, sizeof cmd, "explorer \"%s\"", path);
+    system(cmd);
+# elif defined(__APPLE__)
+    char cmd[512];
+    snprintf(cmd, sizeof cmd, "open \"%s\"", path);
+    system(cmd);
+# else
+    char cmd[512];
+    snprintf(cmd, sizeof cmd, "xdg-open \"%s\"", path);
+    system(cmd);
+# endif
 }
 
 /* ===========================================================
@@ -346,6 +437,13 @@ void exploreTopic(int nArrayIdx)
 
     /* ---------- Suggestions ---------- */
     showSuggestionsForTopic(p);
+
+    char* pathForO = getDirFromDesc(p->szDesc);
+    if (pathForO)
+    {
+        printf("\n  (press 'o' to open %s)\n", pathForO);
+        free(pathForO);   /* only show — real opening will be in loop */
+    }
 }
 
 /* ===========================================================
@@ -361,7 +459,7 @@ static void printDomainTopics(const char* szDomain) {
 }
 
 /* ===========================================================
-   ID  →  array-index helper
+   ID  -  array-index helper
    Returns -1 if the ID does not exist.
    =========================================================== */
 static int findTopicIndexById(int id)
@@ -419,9 +517,26 @@ void browseDomainTopics(const char* szStartDomain, bool bAllowDomainSwitch)
             system("cls");
             exploreTopic(currentIdx);  /* prints name, desc, subtopics, suggestions */
 
-            printf("\nSelect ID to explore ('x' = back to '%s'): ", domain);
+            printf("\nSelect ID to explore "
+                "('o' = open dir, 'x' = back to '%s'): ", domain);
             if (!fgets(buf, sizeof buf, stdin)) return;
-            if (buf[0] == 'x' || buf[0] == 'X') break;
+
+            if (buf[0] == 'x' || buf[0] == 'X')
+                break;
+
+            /* ---------- open directory, if any ---------- */
+            if (buf[0] == 'o' || buf[0] == 'O')
+            {
+                char* path = getDirFromDesc(aTopics[currentIdx].szDesc);
+                if (path) {
+                    openDir(path);
+                    free(path);
+                }
+                else {
+                    puts("No valid path found in this entry.");
+                }
+                continue;   /* stay on current topic */
+            }
 
             int nextId = atoi(buf);
             int nextIdx = findTopicIndexById(nextId);
