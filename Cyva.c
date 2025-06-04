@@ -781,112 +781,79 @@ static int cmpChar(const void* a, const void* b)
 static void rxCanonicaliseClass(char* buf)
 {
     char out[kMaxRegex];
-    int  i = 0, j;
+    int  i = 0, o = 0;
+
     while (buf[i]) {
         if (buf[i] == '[') {
             int start = i;
-            /* find matching ']' */
             int end = start + 1;
+
+            // Find closing bracket
             while (buf[end] && buf[end] != ']') end++;
             if (buf[end] != ']') {
-                /* unbalanced, just copy as is */
-                out[j = 0] = '\0';
-                break;
+                // Unmatched [, copy as-is
+                while (i <= end && buf[i])
+                    out[o++] = buf[i++];
+                continue;
             }
-            /* extract everything between start+1 ... end-1 */
-            char temp[kMaxRegex];
-            int  tlen = 0, k;
-            for (k = start + 1; k < end; k++) {
-                temp[tlen++] = buf[k];
-            }
-            temp[tlen] = '\0';
 
-            /* expand into an array of chars */
-            int   present[256] = { 0 };
-            char  expanded[256];
-            int   exLen = 0;
-            for (k = 0; k < tlen; k++) {
-                if (k + 2 < tlen && temp[k + 1] == '-') {
-                    /* “x-y” range */
-                    char a = temp[k], b = temp[k + 2];
-                    if (a <= b) {
-                        for (char c = a; c <= b; c++) {
-                            present[(unsigned char)c] = 1;
-                        }
-                    }
-                    else {
-                        for (char c = b; c <= a; c++) {
-                            present[(unsigned char)c] = 1;
-                        }
-                    }
+            // Extract inside [...]
+            char raw[256];
+            int  rlen = 0;
+            for (int k = start + 1; k < end; ++k)
+                raw[rlen++] = buf[k];
+            raw[rlen] = '\0';
+
+            // Expand ranges into present[] array
+            bool present[256] = { false };
+            for (int k = 0; k < rlen; ++k) {
+                if (k + 2 < rlen && raw[k + 1] == '-') {
+                    unsigned char a = (unsigned char)raw[k];
+                    unsigned char b = (unsigned char)raw[k + 2];
+                    if (a > b) { unsigned char t = a; a = b; b = t; }
+                    for (unsigned char c = a; c <= b; ++c)
+                        present[c] = true;
                     k += 2;
                 }
                 else {
-                    present[(unsigned char)temp[k]] = 1;
+                    present[(unsigned char)raw[k]] = true;
                 }
             }
-            /* Build a sorted list of unique chars */
-            for (k = 0; k < 256; k++) {
-                if (present[k]) {
-                    expanded[exLen++] = (char)k;
+
+            // Rebuild minimal character class
+            out[o++] = '[';
+            for (int c = 0; c < 256;) {
+                if (!present[c]) { c++; continue; }
+
+                int start_c = c;
+                while (c + 1 < 256 && present[c + 1]) c++;
+                int end_c = c;
+
+                if (end_c > start_c + 1) {
+                    out[o++] = (char)start_c;
+                    out[o++] = '-';
+                    out[o++] = (char)end_c;
                 }
-            }
-            /* Now convert expanded[] back into minimal ranges + singles */
-            char rebuilt[kMaxRegex];
-            int  rlen = 0;
-            k = 0;
-            while (k < exLen) {
-                char startC = expanded[k];
-                char endC = startC;
-                while (k + 1 < exLen && (unsigned char)expanded[k + 1] == (unsigned char)endC + 1) {
-                    endC = expanded[++k];
-                }
-                if (endC > startC + 1) {
-                    rebuilt[rlen++] = startC;
-                    rebuilt[rlen++] = '-';
-                    rebuilt[rlen++] = endC;
-                }
-                else if (endC == startC + 1) {
-                    /* two consecutive chars - either “ab” or just “a-b”?
-                       For consistency, we’ll output “a-b”. */
-                    rebuilt[rlen++] = startC;
-                    rebuilt[rlen++] = '-';
-                    rebuilt[rlen++] = endC;
+                else if (end_c == start_c + 1) {
+                    out[o++] = (char)start_c;
+                    out[o++] = (char)end_c;
                 }
                 else {
-                    rebuilt[rlen++] = startC;
+                    out[o++] = (char)start_c;
                 }
-                k++;
-            }
-            rebuilt[rlen] = '\0';
 
-            /* Copy prefix (up to '[') */
-            for (j = 0; j < start; j++) {
-                out[j] = buf[j];
+                c++;
             }
-            out[j++] = '[';
-            /* Copy rebuilt inside */
-            for (k = 0; k < rlen; k++) {
-                out[j++] = rebuilt[k];
-            }
-            out[j++] = ']';
-
-            /* Copy suffix (from end+1 onward) */
-            int suffixStart = end + 1;
-            while (buf[suffixStart]) {
-                out[j++] = buf[suffixStart++];
-            }
-            out[j] = '\0';
-
-            /* Overwrite buf with out */
-            strcpy(buf, out);
-            /* Start over (in case nested classes or multiple classes) */
-            i = 0;
+            out[o++] = ']';
+            i = end + 1;
         }
         else {
-            i++;
+            out[o++] = buf[i++];
         }
     }
+
+    out[o] = '\0';
+    strncpy(buf, out, kMaxRegex);
 }
 
 /* Pass B: Collapse consecutive identical “\d” or “\s” or “.” tokens
