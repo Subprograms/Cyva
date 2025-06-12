@@ -1,8 +1,9 @@
 #include "Knowledge.h"
 #include "RegEx.h"
+#include "Logs.h"
 
 /* ==============================================================
-   MAIN  ─ CYVA console
+   MAIN  - CYVA console
    ==============================================================*/
 int main(void)
 {
@@ -15,9 +16,10 @@ int main(void)
         puts("2. Domain overview");
         puts("3. Search topics by tag");
         puts("4. Launch Regex Generator");
+        puts("5. NXLog Logs Analyzer");
         puts("0. Exit");
         int nChoice;
-        if (!promptInt("Choice: ", 0, 4, &nChoice))
+        if (!promptInt("Choice: ", 0, 5, &nChoice))
             continue;
 
         switch (nChoice)
@@ -42,6 +44,10 @@ int main(void)
 
         case 4:                                     /* regex tool */
             regexBuilder();
+            break;
+        
+        case 5:
+            LogAnalysisMenu();                      /* NXLog Logs Analyzer */
             break;
 
         default:
